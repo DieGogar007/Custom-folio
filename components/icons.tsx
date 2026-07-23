@@ -110,6 +110,32 @@ export function LeafIcon({ className = "h-5 w-5" }: IconProps) {
   );
 }
 
+export function InstagramIcon({ className = "h-5 w-5" }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} {...base} aria-hidden>
+      <rect x="3.5" y="3.5" width="17" height="17" rx="5" />
+      <circle cx="12" cy="12" r="4" />
+      <circle cx="17.2" cy="6.8" r="1.1" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
+export function FacebookIcon({ className = "h-5 w-5" }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} fill="currentColor" aria-hidden>
+      <path d="M13.4 21v-6.9h2.3l.4-2.9h-2.7V9.3c0-.84.3-1.5 1.5-1.5h1.3V5.2c-.5-.07-1.3-.14-2.2-.14-2.2 0-3.7 1.34-3.7 3.8v2.35H8v2.9h2.3V21h3.1Z" />
+    </svg>
+  );
+}
+
+export function TikTokIcon({ className = "h-5 w-5" }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} fill="currentColor" aria-hidden>
+      <path d="M16.7 3c.37 2 1.63 3.33 3.8 3.47v2.83c-1.36.06-2.7-.34-3.8-1.12v6.1c0 3.42-2.26 5.72-5.4 5.72A5.23 5.23 0 0 1 6 14.73c0-3.07 2.42-5.24 5.66-5.1v2.93a3.3 3.3 0 0 0-.98-.09c-1.4.08-2.32 1.06-2.32 2.42a2.37 2.37 0 0 0 2.42 2.45c1.5 0 2.47-1.07 2.47-2.72V3h3.45Z" />
+    </svg>
+  );
+}
+
 export function WhatsAppIcon({ className = "h-6 w-6" }: IconProps) {
   return (
     <svg viewBox="0 0 24 24" className={className} fill="currentColor" aria-hidden>
