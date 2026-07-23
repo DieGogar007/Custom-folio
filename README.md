@@ -1,36 +1,71 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# El Isótopo — Página de turismo
 
-## Getting Started
+Sitio web de la agencia de turismo **El Isótopo** (Cartagena de Indias · Barú),
+construido con **Next.js** y **Sanity CMS** para que todo el contenido —
+imágenes, videos, textos y precios — sea editable sin tocar código.
 
-First, run the development server:
+## Cómo correr el proyecto
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Abre <http://localhost:3000>. La página funciona de inmediato con **contenido
+de ejemplo**; cuando conectes Sanity, el contenido real lo reemplaza.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Conectar Sanity (el panel para editar contenido)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. Crea una cuenta gratis en <https://www.sanity.io> y luego un proyecto en
+   <https://www.sanity.io/manage> (dataset: `production`).
+2. Copia el **Project ID** del proyecto.
+3. Pégalo en el archivo `.env.local`:
 
-## Learn More
+   ```
+   NEXT_PUBLIC_SANITY_PROJECT_ID=tu_project_id
+   NEXT_PUBLIC_SANITY_DATASET=production
+   ```
 
-To learn more about Next.js, take a look at the following resources:
+4. En <https://www.sanity.io/manage> → tu proyecto → **API → CORS origins**,
+   agrega `http://localhost:3000` (y luego tu dominio de producción).
+5. Reinicia el servidor (`npm run dev`) y entra a <http://localhost:3000/studio>.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Qué se puede editar desde /studio
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+| Sección del panel | Qué controla |
+| --- | --- |
+| **Configuración del sitio** | Logo, **video de portada** (Cartagena + Barú), títulos, WhatsApp, teléfono, correo, dirección, redes sociales y las **fotos del punto de atención** |
+| **Destinos increíbles** | Isla Palma, Palmarito Beach, Isla del Encanto, Bora Bora, Isla Capri, Isla Lisamar (fotos y textos) |
+| **Paquetes exclusivos** | Full Day #1/#2/#3, Tour 4 Islas, Playa Tranquila VIP: precios, qué incluye, foto, orden |
+| **Actividades ecológicas** | Oceanario, Mapache + Snorkeling, Aviario, Plancton Luminoso |
+| **Experiencias** | Los videos con turistas de *Experiencias By Tpir Shekinah* |
+| **Testimonios de clientes** | Reseñas con calificación de estrellas |
+| **Turismo responsable** | Los logros de sostenibilidad |
 
-## Deploy on Vercel
+> Mientras una sección no tenga contenido en Sanity, la página muestra el
+> contenido de ejemplo definido en `lib/fallback.ts` (también editable ahí).
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Pasos recomendados al recibir el material del cliente
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. **Video de portada**: /studio → Configuración del sitio → *Video de portada*
+   (el video panorámico de Cartagena con la Torre del Reloj y el mar de Barú).
+   Sube también una *imagen de portada* para que se vea algo mientras carga.
+2. **Logo**: mismo documento, campo *Logo principal*.
+3. **WhatsApp real**: campo *WhatsApp* (todos los botones de reserva lo usan).
+4. **Fotos de las islas**: crea un documento por destino con su foto.
+5. **Videos de turistas**: crea documentos en *Experiencias*.
+
+## Estructura
+
+- `app/page.tsx` — página principal (todas las secciones)
+- `app/catalogo/page.tsx` — catálogo completo de planes (enlazado en el menú)
+- `app/studio/` — panel de contenido (Sanity Studio embebido)
+- `components/` — secciones y piezas de UI
+- `sanity/schemaTypes/` — modelos de contenido editables
+- `lib/fallback.ts` — contenido de ejemplo mientras Sanity está vacío
+
+## Publicar en producción
+
+La forma más sencilla es [Vercel](https://vercel.com): importa el repositorio,
+agrega las dos variables de entorno de `.env.local` y despliega. Recuerda
+agregar el dominio final en los CORS origins de Sanity.
