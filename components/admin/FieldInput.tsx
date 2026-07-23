@@ -20,7 +20,21 @@ export type ValorCampo =
   | undefined;
 
 const inputCls =
-  "w-full rounded-xl border border-ink/15 bg-white px-3.5 py-2.5 text-sm text-ink outline-none transition focus:border-lagoon focus:ring-2 focus:ring-lagoon/20";
+  "w-full rounded-xl border bg-white px-3.5 py-2.5 text-sm text-ink outline-none transition focus:ring-2";
+
+function inputTone(conError: boolean) {
+  return conError
+    ? `${inputCls} border-coral/60 focus:border-coral focus:ring-coral/20`
+    : `${inputCls} border-ink/15 focus:border-lagoon focus:ring-lagoon/20`;
+}
+
+/** Tipo de input HTML según el formato declarado (mejora teclado móvil y autocompletado) */
+function tipoInput(campo: Campo): string {
+  if (campo.formato === "email") return "email";
+  if (campo.formato === "telefono") return "tel";
+  if (campo.formato === "url") return "url";
+  return "text";
+}
 
 function MediaInput({
   campo,
@@ -120,22 +134,27 @@ export default function FieldInput({
   valor,
   onChange,
   disabled = false,
+  error,
 }: {
   campo: Campo;
   valor: ValorCampo;
   onChange: (v: ValorCampo) => void;
   disabled?: boolean;
+  error?: string;
 }) {
+  const cls = inputTone(Boolean(error));
+
   return (
     <label className="block">
       <span className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-ink/60">
         {campo.label}
+        {campo.required && <span className="ml-0.5 text-coral">*</span>}
       </span>
 
       {campo.kind === "text" && (
         <input
-          type="text"
-          className={inputCls}
+          type={tipoInput(campo)}
+          className={cls}
           value={String(valor ?? "")}
           onChange={(e) => onChange(e.target.value)}
           disabled={disabled}
@@ -145,7 +164,7 @@ export default function FieldInput({
       {campo.kind === "textarea" && (
         <textarea
           rows={3}
-          className={inputCls}
+          className={cls}
           value={String(valor ?? "")}
           onChange={(e) => onChange(e.target.value)}
           disabled={disabled}
@@ -155,7 +174,7 @@ export default function FieldInput({
       {campo.kind === "lines" && (
         <textarea
           rows={4}
-          className={inputCls}
+          className={cls}
           value={Array.isArray(valor) ? valor.join("\n") : String(valor ?? "")}
           onChange={(e) => onChange(e.target.value.split("\n"))}
           disabled={disabled}
@@ -166,7 +185,9 @@ export default function FieldInput({
       {campo.kind === "number" && (
         <input
           type="number"
-          className={inputCls}
+          className={cls}
+          min={campo.min}
+          max={campo.max}
           value={valor === null || valor === undefined ? "" : String(valor)}
           onChange={(e) =>
             onChange(e.target.value === "" ? null : Number(e.target.value))
@@ -177,7 +198,7 @@ export default function FieldInput({
 
       {campo.kind === "select" && (
         <select
-          className={inputCls}
+          className={cls}
           value={String(valor ?? campo.options?.[0]?.value ?? "")}
           onChange={(e) => onChange(e.target.value)}
           disabled={disabled}
@@ -223,6 +244,7 @@ export default function FieldInput({
         />
       )}
 
+      {error && <p className="mt-1.5 text-xs font-semibold text-coral">{error}</p>}
       {campo.help && <p className="mt-1.5 text-xs text-ink/45">{campo.help}</p>}
     </label>
   );

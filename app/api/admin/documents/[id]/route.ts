@@ -2,7 +2,7 @@ import { revalidatePath } from "next/cache";
 import { NextRequest, NextResponse } from "next/server";
 import { ADMIN_COOKIE, cookieValida } from "@/lib/adminAuth";
 import { sanearDocumento } from "@/lib/adminSanitize";
-import { tipoPorNombre } from "@/lib/adminConfig";
+import { tipoPorNombre, validarDocumento } from "@/lib/adminConfig";
 import { writeClient, hasWriteAccess } from "@/sanity/lib/writeClient";
 
 type Ctx = { params: Promise<{ id: string }> };
@@ -32,6 +32,13 @@ export async function PATCH(req: NextRequest, ctx: Ctx) {
   }
 
   const limpio = sanearDocumento(tipo.fields, body.data);
+  const errores = validarDocumento(tipo.fields, limpio);
+  if (errores.length > 0) {
+    return NextResponse.json(
+      { error: errores.map((e) => `${e.campo}: ${e.mensaje}`).join(" · ") },
+      { status: 400 }
+    );
+  }
 
   // Los campos en null se eliminan del documento (ej: quitar una foto)
   const aQuitar = Object.keys(limpio).filter((k) => limpio[k] === null);

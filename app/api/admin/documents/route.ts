@@ -2,7 +2,7 @@ import { revalidatePath } from "next/cache";
 import { NextRequest, NextResponse } from "next/server";
 import { ADMIN_COOKIE, cookieValida } from "@/lib/adminAuth";
 import { sanearDocumento } from "@/lib/adminSanitize";
-import { tipoPorNombre } from "@/lib/adminConfig";
+import { tipoPorNombre, validarDocumento } from "@/lib/adminConfig";
 import { writeClient, hasWriteAccess } from "@/sanity/lib/writeClient";
 
 function noAutorizado() {
@@ -58,6 +58,13 @@ export async function POST(req: NextRequest) {
   }
 
   const limpio = sanearDocumento(tipo.fields, body.data);
+  const errores = validarDocumento(tipo.fields, limpio);
+  if (errores.length > 0) {
+    return NextResponse.json(
+      { error: errores.map((e) => `${e.campo}: ${e.mensaje}`).join(" · ") },
+      { status: 400 }
+    );
+  }
   const creado = await writeClient.create({ _type: tipo.type, ...limpio });
   revalidar();
   return NextResponse.json({ ok: true, id: creado._id });

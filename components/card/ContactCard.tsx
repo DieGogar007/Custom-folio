@@ -1,3 +1,5 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
 import Reveal from "../Reveal";
@@ -14,6 +16,7 @@ import {
   WhatsAppIcon,
 } from "../icons";
 import { whatsappLink, mapsLink } from "@/lib/utils";
+import { useLang } from "@/lib/useLang";
 import type { Settings } from "@/lib/types";
 
 function ActionButton({
@@ -51,10 +54,8 @@ function ActionButton({
 
 /** Tarjeta de presentación: identidad, redes, acciones rápidas y CTA de WhatsApp. */
 export default function ContactCard({ settings }: { settings: Settings }) {
-  const wa = whatsappLink(
-    settings.whatsapp,
-    "¡Hola El Isótopo! Quiero reservar un tour."
-  );
+  const { t } = useLang();
+  const wa = whatsappLink(settings.whatsapp, t.msgReserva);
 
   const redes = [
     { url: settings.instagram, icon: <InstagramIcon />, label: "Instagram" },
@@ -121,28 +122,28 @@ export default function ContactCard({ settings }: { settings: Settings }) {
               <ActionButton
                 href={`tel:${settings.telefono.replace(/\s/g, "")}`}
                 icon={<PhoneIcon className="h-4 w-4 text-lagoon-2" />}
-                label="Llamar"
+                label={t.llamar}
               />
             )}
             {settings.email && (
               <ActionButton
                 href={`mailto:${settings.email}`}
                 icon={<MailIcon className="h-4 w-4 text-lagoon-2" />}
-                label="Correo"
+                label={t.correo}
               />
             )}
             {settings.direccion && (
               <ActionButton
                 href={mapsLink(settings.direccion)}
                 icon={<PinIcon className="h-4 w-4 text-lagoon-2" />}
-                label="Cómo llegar"
+                label={t.comoLlegar}
                 external
               />
             )}
             <ActionButton
               href="/catalogo"
               icon={<SparkIcon className="h-4 w-4 text-lagoon-2" />}
-              label="Catálogo"
+              label={t.catalogo}
             />
           </div>
 
@@ -154,7 +155,7 @@ export default function ContactCard({ settings }: { settings: Settings }) {
             className="mt-3 flex w-full items-center justify-center gap-2.5 rounded-2xl bg-[#25d366] py-4 font-bold text-white shadow-lg shadow-[#25d366]/30 transition hover:-translate-y-0.5 hover:brightness-105 active:translate-y-0"
           >
             <WhatsAppIcon className="h-5 w-5" />
-            Reserva por WhatsApp
+            {t.reservaWhatsApp}
           </a>
 
           {settings.horario && (

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import FieldInput, { type ValorCampo, type MediaValor } from "./FieldInput";
-import type { Campo } from "@/lib/adminConfig";
+import { validarCampo, type Campo } from "@/lib/adminConfig";
 
 export type Valores = Record<string, ValorCampo>;
 
@@ -73,12 +73,29 @@ export default function DocForm({
 }) {
   const [valores, setValores] = useState<Valores>(inicial);
   const [guardando, setGuardando] = useState(false);
+  const [errores, setErrores] = useState<Record<string, string>>({});
   const [mensaje, setMensaje] = useState<{ ok: boolean; texto: string } | null>(
     null
   );
 
   async function guardar(e: React.FormEvent) {
     e.preventDefault();
+
+    // Validación en el navegador antes de enviar (el servidor revalida igual)
+    const nuevos: Record<string, string> = {};
+    for (const campo of fields) {
+      const err = validarCampo(campo, valores[campo.name] ?? null);
+      if (err) nuevos[campo.name] = err;
+    }
+    setErrores(nuevos);
+    if (Object.keys(nuevos).length > 0) {
+      setMensaje({
+        ok: false,
+        texto: "Revisa los campos marcados en rojo antes de guardar.",
+      });
+      return;
+    }
+
     setGuardando(true);
     setMensaje(null);
     try {
@@ -107,8 +124,18 @@ export default function DocForm({
             key={campo.name}
             campo={campo}
             valor={valores[campo.name]}
-            onChange={(v) => setValores((prev) => ({ ...prev, [campo.name]: v }))}
+            onChange={(v) => {
+              setValores((prev) => ({ ...prev, [campo.name]: v }));
+              // El error del campo se limpia apenas el usuario lo corrige
+              setErrores((prev) => {
+                if (!(campo.name in prev)) return prev;
+                const resto = { ...prev };
+                delete resto[campo.name];
+                return resto;
+              });
+            }}
             disabled={!configured || guardando}
+            error={errores[campo.name]}
           />
         ))}
       </div>

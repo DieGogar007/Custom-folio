@@ -2,7 +2,7 @@ import { revalidatePath } from "next/cache";
 import { NextRequest, NextResponse } from "next/server";
 import { ADMIN_COOKIE, cookieValida } from "@/lib/adminAuth";
 import { sanearDocumento } from "@/lib/adminSanitize";
-import { SETTINGS_FIELDS } from "@/lib/adminConfig";
+import { SETTINGS_FIELDS, validarDocumento } from "@/lib/adminConfig";
 import { writeClient, hasWriteAccess } from "@/sanity/lib/writeClient";
 
 const SETTINGS_ID = "siteSettings";
@@ -46,6 +46,13 @@ export async function PUT(req: NextRequest) {
   }
 
   const limpio = sanearDocumento(SETTINGS_FIELDS, body.data);
+  const errores = validarDocumento(SETTINGS_FIELDS, limpio);
+  if (errores.length > 0) {
+    return NextResponse.json(
+      { error: errores.map((e) => `${e.campo}: ${e.mensaje}`).join(" · ") },
+      { status: 400 }
+    );
+  }
   const aQuitar = Object.keys(limpio).filter((k) => limpio[k] === null);
   const aPoner = Object.fromEntries(
     Object.entries(limpio).filter(([, v]) => v !== null)

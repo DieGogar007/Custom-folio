@@ -1,10 +1,14 @@
+"use client";
+
 import Reveal from "../Reveal";
 import { PinIcon, ClockIcon } from "../icons";
 import { mapsLink } from "@/lib/utils";
+import { useLang } from "@/lib/useLang";
 import type { Settings } from "@/lib/types";
 
 /** Ubicación en una tarjeta mínima + línea de cierre (reemplaza al footer). */
 export default function LocationFinale({ settings }: { settings: Settings }) {
+  const { t } = useLang();
   const year = new Date().getFullYear();
 
   return (
@@ -32,7 +36,7 @@ export default function LocationFinale({ settings }: { settings: Settings }) {
               rel="noopener noreferrer"
               className="shrink-0 rounded-full border border-lagoon/40 px-3.5 py-2 text-[0.65rem] font-bold uppercase tracking-wider text-lagoon-2 transition hover:bg-lagoon hover:text-white"
             >
-              Ir
+              {t.ir}
             </a>
           </div>
         </Reveal>

@@ -1,5 +1,9 @@
+"use client";
+
 import Reveal from "../Reveal";
+import LangToggle from "./LangToggle";
 import { IsotopoMark } from "../Logo";
+import { useLang } from "@/lib/useLang";
 import type { Settings } from "@/lib/types";
 
 /**
@@ -7,6 +11,7 @@ import type { Settings } from "@/lib/types";
  * animado mientras tanto) con el título encima y un sello postal de la marca.
  */
 export default function CardHero({ settings }: { settings: Settings }) {
+  const { t } = useLang();
   return (
     <section className="grain relative flex h-[52svh] max-h-[540px] min-h-[380px] flex-col justify-end overflow-hidden bg-abyss">
       {/* Fondo: video de Cartagena + Barú, o el océano animado */}
@@ -51,6 +56,11 @@ export default function CardHero({ settings }: { settings: Settings }) {
       {/* Velo para legibilidad */}
       <div className="absolute inset-0 bg-gradient-to-b from-abyss/40 via-abyss/10 to-abyss/90" />
 
+      {/* Cambio de idioma */}
+      <div className="absolute left-4 top-4 z-10">
+        <LangToggle />
+      </div>
+
       {/* Sello postal de la marca */}
       <div
         className="absolute right-4 top-4 rotate-3 rounded-xl border-2 border-dashed border-foam/40 bg-abyss/30 p-2.5 backdrop-blur-sm"
@@ -74,8 +84,8 @@ export default function CardHero({ settings }: { settings: Settings }) {
           <h1 className="mx-auto max-w-xs font-display text-[2rem] font-medium leading-[1.05] text-foam sm:max-w-md sm:text-[2.6rem]">
             {settings.heroTitulo || (
               <>
-                Del corazón de Cartagena{" "}
-                <em className="text-lagoon">al azul de Barú</em>
+                {t.heroFallback[0]}
+                <em className="text-lagoon">{t.heroFallback[1]}</em>
               </>
             )}
           </h1>

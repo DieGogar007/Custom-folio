@@ -14,6 +14,8 @@ import {
   SparkIcon,
 } from "../icons";
 import { whatsappLink } from "@/lib/utils";
+import { useLang } from "@/lib/useLang";
+import type { Textos } from "@/lib/i18n";
 import type { Actividad, Paquete, Settings } from "@/lib/types";
 
 const CATEGORIA_LABEL: Record<string, string> = {
@@ -38,10 +40,12 @@ type Detalle =
 function DetalleSheet({
   detalle,
   whatsapp,
+  t,
   onClose,
 }: {
   detalle: Detalle;
   whatsapp?: string;
+  t: Textos;
   onClose: () => void;
 }) {
   const { item, tipo, seed } = detalle;
@@ -52,9 +56,7 @@ function DetalleSheet({
 
   const wa = whatsappLink(
     whatsapp,
-    tipo === "paquete"
-      ? `¡Hola El Isótopo! Quiero reservar el plan "${item.nombre}".`
-      : `¡Hola El Isótopo! Quiero agregar la actividad "${item.nombre}" a mi plan.`
+    tipo === "paquete" ? t.msgPlan(item.nombre) : t.msgActividad(item.nombre)
   );
 
   // Cerrar con Escape y bloquear el scroll del fondo mientras la hoja está abierta
@@ -86,7 +88,7 @@ function DetalleSheet({
 
         <button
           onClick={onClose}
-          aria-label="Cerrar"
+          aria-label={t.cerrar}
           className="absolute right-4 top-4 z-10 grid h-9 w-9 place-items-center rounded-full bg-abyss/40 text-foam backdrop-blur transition hover:bg-abyss/60"
         >
           <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round" aria-hidden>
@@ -116,7 +118,7 @@ function DetalleSheet({
               ? "★ VIP"
               : paquete
                 ? (CATEGORIA_LABEL[paquete.categoria] ?? "Plan")
-                : "Actividad"}
+                : t.actividadChip}
           </span>
         </div>
 
@@ -133,7 +135,7 @@ function DetalleSheet({
         {paquete?.incluye && paquete.incluye.length > 0 && (
           <>
             <p className="mt-5 text-[0.65rem] font-bold uppercase tracking-[0.25em] text-ink/45">
-              Incluye
+              {t.incluye}
             </p>
             <ul className="mt-2 space-y-2">
               {paquete.incluye.map((inc) => (
@@ -150,10 +152,10 @@ function DetalleSheet({
 
         <div className="mt-5 flex items-center justify-between border-t border-ink/10 pt-4">
           <span className="text-[0.65rem] font-bold uppercase tracking-[0.25em] text-ink/45">
-            Precio
+            {t.precio}
           </span>
           <span className="text-sm font-bold text-ink">
-            {item.precio || "Consultar"}
+            {item.precio || t.consultar}
           </span>
         </div>
 
@@ -164,7 +166,7 @@ function DetalleSheet({
           className="mt-4 flex w-full items-center justify-center gap-2.5 rounded-2xl bg-[#25d366] py-4 font-bold text-white shadow-lg shadow-[#25d366]/30 transition hover:brightness-105 active:scale-[0.99]"
         >
           <WhatsAppIcon className="h-5 w-5" />
-          Reservar por WhatsApp
+          {t.reservarWhatsApp}
         </a>
       </div>
     </div>
@@ -182,34 +184,36 @@ export default function PlanesCompact({
   settings: Settings;
 }) {
   const [detalle, setDetalle] = useState<Detalle | null>(null);
+  const { t } = useLang();
 
   return (
     <section id="paquetes" className="px-4 pt-10">
       <Reveal className="text-center">
         <p className="text-[0.65rem] font-bold uppercase tracking-[0.3em] text-coral">
-          Planes &amp; Tours
+          {t.planesEyebrow}
         </p>
         <h2 className="mt-2 font-display text-[1.7rem] font-medium leading-tight text-ink">
-          Elige tu día de <em className="text-lagoon-2">islas</em>
+          {t.planesTitulo[0]}
+          <em className="text-lagoon-2">{t.planesTitulo[1]}</em>
+          {t.planesTitulo[2]}
         </h2>
-        <p className="mt-1.5 text-xs text-ink/50">
-          Toca un plan para ver detalles y reservar.
-        </p>
+        <p className="mt-1.5 text-xs text-ink/50">{t.planesHint}</p>
       </Reveal>
 
-      <div className="mt-6 grid grid-cols-2 gap-3">
+      {/* Panel compacto: 3 tarjetas por fila; los VIP ocupan la fila completa */}
+      <div className="mt-6 grid grid-cols-3 gap-2.5">
         {paquetes.map((p, i) => {
           const vip = p.destacado || p.categoria === "vip";
           return (
             <Reveal
               key={p.nombre}
-              delay={(i % 2) * 90}
-              className={vip ? "col-span-2" : ""}
+              delay={(i % 3) * 70}
+              className={vip ? "col-span-3" : ""}
             >
               <button
                 onClick={() => setDetalle({ tipo: "paquete", item: p, seed: i })}
-                className={`group relative block w-full overflow-hidden rounded-3xl text-left shadow-md shadow-ink/10 transition active:scale-[0.97] ${
-                  vip ? "aspect-[16/9]" : "aspect-[4/5]"
+                className={`group relative block w-full overflow-hidden rounded-2xl text-left shadow-md shadow-ink/10 transition active:scale-[0.97] ${
+                  vip ? "aspect-[21/9]" : "aspect-square"
                 }`}
               >
                 {p.imagenUrl ? (
@@ -218,7 +222,9 @@ export default function PlanesCompact({
                     alt={p.nombre}
                     fill
                     sizes={
-                      vip ? "(max-width: 640px) 100vw, 448px" : "(max-width: 640px) 50vw, 224px"
+                      vip
+                        ? "(max-width: 640px) 100vw, 576px"
+                        : "(max-width: 640px) 33vw, 190px"
                     }
                     className="object-cover transition-transform duration-700 group-hover:scale-105"
                   />
@@ -228,22 +234,21 @@ export default function PlanesCompact({
                   </span>
                 )}
                 <span
-                  className="absolute inset-0 bg-gradient-to-t from-abyss/85 via-abyss/10 to-transparent"
+                  className="absolute inset-0 bg-gradient-to-t from-abyss/85 via-abyss/15 to-transparent"
                   aria-hidden
                 />
-                <span
-                  className={`absolute left-3 top-3 rounded-full px-3 py-1 text-[0.55rem] font-bold uppercase tracking-[0.18em] ${
-                    vip ? "bg-gold text-abyss" : "bg-abyss/70 text-foam backdrop-blur"
-                  }`}
-                >
-                  {vip ? "★ VIP" : (CATEGORIA_LABEL[p.categoria] ?? "Plan")}
-                </span>
-                <span className="absolute inset-x-3 bottom-3">
-                  <span className="block font-display text-base font-medium leading-tight text-foam">
-                    {p.nombre}
+                {vip && (
+                  <span className="absolute left-2.5 top-2.5 rounded-full bg-gold px-2.5 py-1 text-[0.55rem] font-bold uppercase tracking-[0.18em] text-abyss">
+                    ★ VIP
                   </span>
-                  <span className="mt-1 block text-[0.6rem] uppercase tracking-[0.2em] text-foam/65">
-                    Ver detalle →
+                )}
+                <span className="absolute inset-x-2.5 bottom-2.5">
+                  <span
+                    className={`block font-display font-medium leading-tight text-foam ${
+                      vip ? "text-base sm:text-lg" : "text-xs sm:text-sm"
+                    }`}
+                  >
+                    {p.nombre}
                   </span>
                 </span>
               </button>
@@ -256,7 +261,7 @@ export default function PlanesCompact({
       {actividades.length > 0 && (
         <Reveal>
           <p className="mt-7 text-center text-[0.65rem] font-bold uppercase tracking-[0.3em] text-ink/45">
-            Complementa tu plan
+            {t.complementa}
           </p>
           <div className="no-scrollbar -mx-4 mt-3 flex gap-2 overflow-x-auto px-4 pb-1">
             {actividades.map((a, i) => {
@@ -283,7 +288,7 @@ export default function PlanesCompact({
           href="/catalogo"
           className="text-xs font-bold text-lagoon-2 underline-offset-4 transition hover:underline"
         >
-          Ver el catálogo completo →
+          {t.verCatalogo}
         </Link>
       </Reveal>
 
@@ -291,6 +296,7 @@ export default function PlanesCompact({
         <DetalleSheet
           detalle={detalle}
           whatsapp={settings.whatsapp}
+          t={t}
           onClose={() => setDetalle(null)}
         />
       )}
